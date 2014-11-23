@@ -1,10 +1,5 @@
 " NOTE: You must, of course, install ag / the_silver_searcher
 
-" Location of the ag utility
-if !exists("g:agprg")
-  let g:agprg="ag --column"
-endif
-
 if !exists("g:ag_apply_qmappings")
   let g:ag_apply_qmappings=1
 endif
@@ -25,38 +20,26 @@ if !exists("g:ag_mapping_message")
   let g:ag_mapping_message=1
 endif
 
-function! ag#Ag(cmd, args)
-  let l:ag_executable = get(split(g:agprg, " "), 0)
-
+function! pg#Pg(cmd, args)
   " Ensure that `ag` is installed
-  if !executable(l:ag_executable)
-    echoe "Ag command '" . l:ag_executable . "' was not found. Is the silver searcher installed and on your $PATH?"
-    return
-  endif
+  "if !executable(l:ag_executable)
+    " Also check for mdfind here
+    "echoe "Ag command '" . l:ag_executable . "' was not found. Is the silver searcher installed and on your $PATH?"
+    "return
+  "endif
 
-  " If no pattern is provided, search for the word under the cursor
-  if empty(a:args)
-    let l:grepargs = expand("<cword>")
-  else
-    let l:grepargs = a:args . join(a:000, ' ')
-  end
+  " Pankaj Only Search for the word under the cursor
+  let l:cword = expand("<cword>")
 
   " Format, used to manage column jump
-  if a:cmd =~# '-g$'
-    let s:agformat_backup=g:agformat
-    let g:agformat="%f"
-  elseif exists("s:agformat_backup")
-    let g:agformat=s:agformat_backup
-  elseif !exists("g:agformat")
-    let g:agformat="%f:%l:%c:%m"
-  endif
+  let g:agformat="%f:%l:%c:%m"
 
   let grepprg_bak=&grepprg
   let grepformat_bak=&grepformat
   try
-    let &grepprg=g:agprg
+    let &grepprg="vimgrep"
     let &grepformat=g:agformat
-    silent execute a:cmd . " " . escape(l:grepargs, '|')
+    silent execute a:cmd . " " . escape(l:cword, '|')
   finally
     let &grepprg=grepprg_bak
     let &grepformat=grepformat_bak
@@ -77,12 +60,6 @@ function! ag#Ag(cmd, args)
     let l:apply_mappings = g:ag_apply_qmappings
     let l:matches_window_prefix = 'c' " we're using the quickfix window
   endif
-
-  " If highlighting is on, highlight the search keyword.
-  if exists("g:aghighlight")
-    let @/=a:args
-    set hlsearch
-  end
 
   redraw!
 
@@ -115,27 +92,4 @@ function! ag#Ag(cmd, args)
   else
     echom 'No matches for "'.a:args.'"'
   endif
-endfunction
-
-function! ag#AgFromSearch(cmd, args)
-  let search =  getreg('/')
-  " translate vim regular expression to perl regular expression.
-  let search = substitute(search,'\(\\<\|\\>\)','\\b','g')
-  call ag#Ag(a:cmd, '"' .  search .'" '. a:args)
-endfunction
-
-function! ag#GetDocLocations()
-  let dp = ''
-  for p in split(&runtimepath,',')
-    let p = p.'/doc/'
-    if isdirectory(p)
-      let dp = p.'*.txt '.dp
-    endif
-  endfor
-  return dp
-endfunction
-
-function! ag#AgHelp(cmd,args)
-  let args = a:args.' '.ag#GetDocLocations()
-  call ag#Ag(a:cmd,args)
 endfunction
