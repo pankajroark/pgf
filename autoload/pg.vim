@@ -28,8 +28,11 @@ function! pg#Pg(cmd, args)
     "return
   "endif
 
-  " Pankaj Only Search for the word under the cursor
-  let l:cword = expand("<cword>")
+  if empty(a:args)
+    let l:grepargs = expand("<cword>")
+  else
+    let l:grepargs = a:args . join(a:000, ' ')
+  end
 
   " Format, used to manage column jump
   let g:agformat="%f:%l:%c:%m"
@@ -39,7 +42,7 @@ function! pg#Pg(cmd, args)
   try
     let &grepprg="vimgrep"
     let &grepformat=g:agformat
-    silent execute a:cmd . " " . escape(l:cword, '|')
+    silent execute a:cmd . " " . escape(l:grepargs, '|')
   finally
     let &grepprg=grepprg_bak
     let &grepformat=grepformat_bak
