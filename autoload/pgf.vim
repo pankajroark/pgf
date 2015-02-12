@@ -20,7 +20,7 @@ if !exists("g:ag_mapping_message")
   let g:ag_mapping_message=1
 endif
 
-function! pg#Pg(cmd, args)
+function! pgf#Pgf(cmd, args)
   " Ensure that `ag` is installed
   "if !executable(l:ag_executable)
     " Also check for mdfind here
@@ -40,7 +40,7 @@ function! pg#Pg(cmd, args)
   let grepprg_bak=&grepprg
   let grepformat_bak=&grepformat
   try
-    let &grepprg="vimgrep"
+    let &grepprg="vimfind"
     let &grepformat=g:agformat
     silent execute a:cmd . " " . escape(l:grepargs, '|')
   finally

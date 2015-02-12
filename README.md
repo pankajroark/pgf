@@ -1,3 +1,4 @@
-# pag.vim #
+# pgf.vim #
 
-This plugin just searches the current word in pwd. Uses mdfind to go extremely fast.
+This plugin just searches the file named with current word.
+Uses mdfind to go extremely fast.
